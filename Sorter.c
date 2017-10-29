@@ -65,6 +65,17 @@ int getHeader(node * head, char * headerTitle, int * numberOfHeaders)//take a he
   else
     return -1;
 }
+/* ADDED FREE FUNCTION */
+void freeLinkedList( struct _node* head){
+  struct _node* cur = *head;
+  struct _node* next;
+  while( current != NULL){
+    next = cur->next;
+    free(cur);
+    cur = next;
+  }
+  *head = NULL; 
+}
 
 int main(int argc, char *argv[])
  {
@@ -120,6 +131,7 @@ int main(int argc, char *argv[])
      head->next = data;
      //     printf("---***---\n");
      printData(head, numOfHeaders);
+     freeLinkedList(head);
      return 0;
  }
 

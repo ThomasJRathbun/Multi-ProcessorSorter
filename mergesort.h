@@ -16,7 +16,7 @@ node * merge( node *, node*,int, int (*)(void*,void*));
 void subdivide( node*, node**, node**);
 void printData( node*, int);
 void readData ( node*, int);
-
+void freeLinkedList(node*);
 
 
 #endif
