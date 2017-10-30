@@ -3,16 +3,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
+#include <math.h>
 
-
-int getHeader(node * head, char * headerTitle, int * numberOfHeaders, char * filename)
+int getHeader(node * head, char * headerTitle, int * numberOfHeaders, FILE** fp)
 {
-  FILE * file = fopen( filename, "r");
   char * line;
   char * orig = NULL;
   int chosenHeader =0;
   bool found=FALSE;
-  fscanf(file,"%ms", &line);
+  fscanf((*fp),"%ms", &line);
 
   orig = (char*) malloc( sizeof(char) * strlen(line)+1);
   memcpy( orig, line, strlen(line)+1);
@@ -59,37 +59,73 @@ int getHeader(node * head, char * headerTitle, int * numberOfHeaders, char * fil
     return -1;
 }
 
-int checkString( char* arg1, char* arg2 )
+void freeNode( node* head)
+{
+  node *temp;
+  while( head != NULL )
+    {
+      temp = head;
+      head = head->next;
+      free(temp);
+    }
+  
+}
+
+int checkInteger( void* a , void* b )
+{
+  if (strlen(a) < strlen(b))
+    {
+      return -1;
+    }
+  else if (strlen(b) < strlen(a))
+    {
+      return 1;
+    }
+  
+  if ( (unsigned int)atoi( (char*)a) < (unsigned int)atoi( (char*)b))
+    {
+      return -1;
+    }
+  else
+    {
+      return 1;
+    }
+  
+}
+
+int checkString( void* arg1, void* arg2 )
 {
   int i = 0;
-  for( i=0; i < strlen(arg1);i++)
+  char* a = (char*)arg1;
+  char* b = (char*)arg2;
+  for( i=0; i < strlen(a);i++)
     {
-      arg1[i] = tolower( arg1[i]);
+      a[i] = tolower( a[i]);
     }
-  for( i=0; i < strlen(arg2);i++)
+  for( i=0; i < strlen(b);i++)
     {
-      arg2[i] = tolower( arg2[i]);
+      b[i] = tolower(b[i]);
     }
   i = 0;
   int j =0;
-  char* c1;
-  char* c2;
-  while( i < strlen(arg1) || j < strlen(arg2) )
+  char c1;
+  char c2;
+  while( i < strlen(a) || j < strlen(b) )
     {
-      while(isspace(arg1[i]) || arg1[i] == '\"')
+      while(isspace(a[i]) || a[i] == '\"')
 	{
 	  i++;
-	  if( i > strlen(arg1))
+	  if( i > strlen(a))
 	    break;
 	}
-      while(isspace(arg2[j]) || arg2[j] == '\"')
+      while(isspace(b[j]) || b[j] == '\"')
 	{
-	  if( j > strlen(arg2))
+	  if( j > strlen(b))
 	    break;
 	  j++;
 	}
-      c1 = arg1[i];
-      c2 = arg2[j];
+      c1 = a[i];
+      c2 = b[j];
       if(c1 == c2)
 	{
 	  i++;
@@ -110,34 +146,17 @@ int checkString( char* arg1, char* arg2 )
   return 0;
 }
 
-void readData( node * head, int _numHeaders, char* filename )
+bool readData( node * head, int _numHeaders, int chosen, FILE** fp )
 {
   char* line = NULL;
   size_t size;
   node * newNode = head;
-  FILE* file = fopen(filename, "r");
-  
-  
-  while( getline(&line, &size,file) != -1)
+  int c =0;
+  bool isNumber = TRUE;
+  while( getline(&line, &size,(*fp)) != -1)
     {
       char * s = line;
       bool onlySpaces = FALSE;
-      while( *s != '\0')
-	{
-	  if ( !isspace(*s))
-	    break;
-	  else
-	    {
-	      s++;
-	    }
-	  onlySpaces =TRUE;
-	}
-      if( onlySpaces)
-	{
-	  continue;
-	}
-
-
       if (line == "")
 	{
 	  line = NULL;
@@ -155,11 +174,13 @@ void readData( node * head, int _numHeaders, char* filename )
 	      node * prev = newNode;
 	      newNode = newNode->next;
 	      prev->next = newNode;
+	    
 	    }
 	  newNode->next = (node*)malloc(sizeof(node));
 	  node * prev = newNode;
 	  newNode = newNode->next;
 	  prev->next = newNode;
+	  
 	}
 
       newNode->data = (char**)malloc(sizeof(char*) * _numHeaders);
@@ -168,26 +189,77 @@ void readData( node * head, int _numHeaders, char* filename )
       int i = 0;
       char *tok = line;
       char *end = line;
+      char * specialTok = NULL;
+      bool specialFound = FALSE;
       for (i=0; i<_numHeaders; i++)
 	{
+
 	  tok = strsep(&end, ",");
+	  if(tok != NULL && tok[0] == '"')
+	    {
+	      char* tmp = (char*)malloc(sizeof(char)*strlen(tok)+1);
+	      strcpy(tmp,tok);
+	      tok = strsep(&end, "\"");
+	      specialTok = (char*)malloc(sizeof(char) * (strlen(tmp) + strlen(tok) + 3));
+	      strcpy(specialTok,tmp);
+	      strcat(specialTok,",");
+	      strcat(specialTok,tok);
+	      strcat(specialTok,"\"");
+	      specialFound = TRUE;
+	      tok = strsep(&end,",");
+	    }
+	  
+
+	  if(tok == NULL || tok == "")
+	    {
+	      newNode->data[i] = (char*)malloc(sizeof(char));
+	      newNode->data[i] = "\0";
+	      continue;
+	    }
+
 	  newNode->data[i] = (char*)malloc(sizeof(char) * strlen(line)+1);
-	  newNode->data[i] = tok;
-
+	  if ( specialFound == FALSE)
+	    {
+	      newNode->data[i] = tok;
+	    }
+	  else
+	    {
+	      newNode->data[i] = specialTok;
+	      specialFound = FALSE;
+	    }
+	  int l = 0;
+	  char* ind = newNode->data[i];
+	  if ( i == chosen )
+	    {
+	      if ( isNumber == TRUE )
+		{
+		  for(l=0; l < strlen(newNode->data[i]);l++)
+		    {
+		      if( ((*ind) - '0') <= 9 )
+			{
+			  continue;
+			}
+		      else
+			isNumber = FALSE;
+		    }
+		}
+	    }
 	}
-
       line = NULL;
+      c++;
     }
+  return isNumber;
 }
 
 
-void printData( node * head, int _numHeaders)
+void printData( node * head, int _numHeaders, FILE** fp)
 {
   node * curr = head;
   int i = 0;
   int l = 0;
   while( curr != NULL)
     {
+      
       for (i = 0 ; i< _numHeaders; i++)
 	{ 
 	  for ( l = 0; l < sizeof(curr->data[i]); l++)
@@ -199,17 +271,16 @@ void printData( node * head, int _numHeaders)
 	    }
 	  if ( (_numHeaders - i) == 1)
 	    {	     
-	      printf("%s",curr->data[i]);
+	      fprintf((*fp),"%s",curr->data[i]);
 	    }
 	  else
 	    {
-	      printf("%s,",curr->data[i]);
+	      fprintf((*fp),"%s,",curr->data[i]);
 	    }
 	}
-      printf("\n");
+      fprintf((*fp),"\n");
       curr = curr->next;
     }
-
   return;
 }
 
@@ -242,8 +313,7 @@ node* merge(node * leftList, node* rightList,int index, int (*comp)(void*,void*)
 
 void subDivide( node * head, node** left, node** right )
 {
-  node * fast = head->next;
-  node * slow = head;
+
   if ( head == NULL || head->next == NULL)
     {
       *left  = head;
@@ -251,7 +321,8 @@ void subDivide( node * head, node** left, node** right )
     }
   else
     {
-
+      node * fast = head->next;
+      node * slow = head;
       while( fast != NULL)
 	{
 	  fast = fast->next;
