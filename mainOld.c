@@ -6,22 +6,34 @@
 #include <dirent.h>
 #include <string.h>
 #include "mergesort.h"
+#include <sys/stat.h>
 
-int dirTraversal(char* filename, char* headerTitle)
-{
+
+int dirTraversal(char* filename, char* headerTitle, char* outputDir)
+{   
   int childStatus[255];
   pid_t childProcess[255];
   int processCounter = 0;
   pid_t myPID = getpid();
+  struct stat sb;
+  if ( outputDir != NULL )
+    {
+      if( stat(outputDir,&sb) != 0 || !S_ISDIR(sb.st_mode))
+	{
+	  mkdir(outputDir,0700);	  
+	}
+    }
 
   DIR * base = opendir(filename);
   struct dirent * entry = readdir(base);
+  
   char nextDir[1000] = "\0";
+  char*  output = (char*)malloc(sizeof(char)*1000);
   while( entry != NULL )
     {
       switch( (int)entry->d_type)
 	{
-	case 4:
+	case DT_DIR:
 	  memset( nextDir, '\0', 1000);
 	  if ( strcmp( entry->d_name, ".\0")  != 0 &&
 	       strcmp( entry->d_name, "..\0") != 0)
@@ -30,19 +42,17 @@ int dirTraversal(char* filename, char* headerTitle)
 	      strcat( nextDir, "/");
 	      strcat( nextDir, entry->d_name);
 
-	      childProcess[processCounter] = fork();
+	      childProcess[processCounter] = fork();	     
 
 	      if( childProcess[processCounter] == 0)
 		{
-		  _exit(dirTraversal( nextDir, headerTitle));
+		  _exit(dirTraversal( nextDir, headerTitle,outputDir));
 
 		}
-	      printf("PID: %d child:%d  file: %s\n",myPID,childProcess[processCounter], entry->d_name);
 	      processCounter++;
 	    }
 	  break;
-	case 8:
-	  
+	case DT_REG:
 	  childProcess[processCounter] = fork();
 	   
 	  if( childProcess[processCounter] == 0)
@@ -52,52 +62,112 @@ int dirTraversal(char* filename, char* headerTitle)
 	      head->next = NULL;
 	      node* rows = (node*)malloc(sizeof(node));
 	      int numberOfHeaders = 0;
-	      int chosenField =0;
-				
+	      int chosenField =-1;
+	      char filePath[4095];
+	      memset( filePath, '\0', 4095);
+	      if( strcmp(nextDir,filename) != 0 )
+		{
+		  memset( filePath, '\0', 4095);		  
+		  strcat(filePath,filename);
+		  strcat(filePath,"/");
+		  strcat(filePath,entry->d_name);
+		}
 	      strcat( nextDir, filename);
 	      strcat( nextDir, "/");
 	      strcat( nextDir, entry->d_name);
+
 	      char * extention = (char*)malloc(sizeof(char)*5);
 	      extention[4] = '\0';
 	      int i =0;
 	      int c =3;
-	      for ( i = sizeof(nextDir); i > 0; i--)
+
+	      FILE * unSorted = NULL;
+	      FILE * sorted   = NULL;
+	      for ( i = sizeof(filePath); i > 0; i--)
 		{
-		  if ( nextDir[i] == '\0')
+		  if ( filePath[i] == '\0')
 		    continue;
 		  else
 		    {
-		      extention[c] = nextDir[i];
+		      extention[c] = filePath[i];
 		      c--;
 		    }
 		  if ( c < 0)
 		    break;
 		}
-		
-	      printf("File: %s Extention:%s\n",nextDir,extention);
 	      if ( strcmp(extention,".csv") != 0 )
 		{
 		  printf("File is not correct\n");
 		  _exit(-4);
 		}
-		
-	      FILE * unSorted = fopen(nextDir,"r");
-	      printf("PID: %d finding Field: %s\n",myPID,headerTitle);
+	      unSorted = fopen(filePath,"r");
 	      chosenField = getHeader(head, headerTitle, &numberOfHeaders,&unSorted);
-	      printf("Field:%d NumberOf Fields:%d\n",chosenField,numberOfHeaders);
+	      if(chosenField == -1)
+		{
+		  printf("header DOES NOT EXIST\n");
+		  _exit(-100);
+		}
 	      if ( numberOfHeaders != 28)
 		{
 		  printf("PID: % number of headers wrong\n",myPID);
 		  _exit(-2);//File not compatible
 		}
-	      printf("readingData\n");
+	      char* unsortedFile = (char*)malloc(sizeof(char)*1500);
+	      memset( unsortedFile, '\0', 1500);
+
+
+	      int z =0;
+	      char* fNAME = (char*)malloc(sizeof(char)*1000);
+	      memset( fNAME, '\0', 1000);
+
+	      if(outputDir != NULL)
+		{
+		  for(z=0; z<strlen(entry->d_name)-4; z++)
+		    {
+		      fNAME[z] = entry->d_name[z];
+		    }
+		  strcat( unsortedFile,outputDir);
+		  strcat( unsortedFile,"/");
+		  strcat( unsortedFile,fNAME);
+		  strcat( unsortedFile,"-");
+		  strcat( unsortedFile,"sorted");
+		  strcat( unsortedFile,"-");
+		  strcat( unsortedFile,headerTitle);
+		  strcat( unsortedFile,".csv");
+		  sorted = fopen( unsortedFile, "w");
+		}
+	      else
+		{
+		  if ( filePath == NULL)
+		    {
+		      for(z=0; z<strlen(nextDir)-4; z++)
+			{
+			  fNAME[z] = nextDir[z];
+			}
+		    }
+		  else
+		    {
+		      for(z=0; z<strlen(filePath)-4; z++)
+			{
+			  fNAME[z] = filePath[z];
+			}
+		    }
+		  strcat( unsortedFile,fNAME);
+		  strcat( unsortedFile,"-");
+		  strcat( unsortedFile,"sorted");
+		  strcat( unsortedFile,"-");
+		  strcat( unsortedFile,headerTitle);
+		  strcat( unsortedFile,".csv");
+		  sorted = fopen(unsortedFile,"w");
+		}
 	      readData( rows, numberOfHeaders, chosenField, &unSorted);
 	      mergeSort(&rows, chosenField, checkString); 
 	      head->next = rows;
-	      FILE * sorted = fopen("./Sorted.csv","w");
+
 	      printData(head,numberOfHeaders,&sorted);
 	      freeNode(head);
 	      _exit(1);
+	      
 	    }
 	  break;
 	    
@@ -107,12 +177,6 @@ int dirTraversal(char* filename, char* headerTitle)
 
       entry = readdir(base);
     }
-  /*  int k = 0;
-  for (k=0; k<processCounter; k++)
-    {
-      printf("Process ID:%d Child ID: %d, Filename: %s\n",myPID,childProcess[k], filename);
-    }
-  */
   waitpid(-1,NULL,0);
 
 
@@ -122,8 +186,54 @@ int dirTraversal(char* filename, char* headerTitle)
 
 int main( int argc, char ** argv )
 {
+    
+  int options;
+  int flagC =0;
+  int flagD =0;
+  int flagO =0;
+  char * headerTitle = (char*)malloc(sizeof(char)*1000);
+  char * searchDir   = (char*)malloc(sizeof(char)*4095);
+  char * outputDir   = (char*)malloc(sizeof(char)*4095);
+  memset( headerTitle, '\0',(sizeof(char)*1000));
+  memset( searchDir, '\0', (sizeof(char)*4095));
+  memset( outputDir, '\0', (sizeof(char)*4095));
 
-  dirTraversal("nothing", "movie_title");
+  printf("BEFORE WHILE\n");
+  while( (options = getopt(argc,argv,"c:d:o:")) != -1 )
+    {
+      switch(options)
+	{
+	case 'c':
+	  headerTitle = optarg;
+	  flagC = 1;
+	  break;
+	case 'd':
+	  flagD = 1;
+	  searchDir = optarg;
+	  break;
+	case 'o':
+	  flagO = 1;
+	  outputDir = optarg;
+	  break;
+	}
+    }
+  if( flagC == 0 )
+    {
+      printf( "No -c option: Please try again with a header to sort by\n");
+      return -1;
+    }
+  if ( flagD != 1 || searchDir == NULL)
+    {
+      searchDir = getcwd(NULL,0);
+      printf("flag d\n");
+    }
+  if ( flagO != 1 || outputDir == NULL)
+    {
+      outputDir = 0;
+    }
+  
+  printf("%s  %s\n",searchDir,headerTitle);
+  dirTraversal(searchDir, headerTitle,outputDir);
 
   return 0;
 }

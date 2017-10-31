@@ -5,7 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-
+//Thomas Rathbun
 int getHeader(node * head, char * headerTitle, int * numberOfHeaders, FILE** fp)
 {
   char * line;
