@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2017.5.23)  31 OCT 2017 23:00
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2017.5.23)  31 OCT 2017 23:06
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -51,102 +51,26 @@ File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 30.
- [1]
-./documentation.tex:69: Missing $ inserted.
-<inserted text> 
-                $
-l.69 ...d to the filepath and the forked process _
-                                                  exits on the completion of...
-
-? 
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 69.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 69.
-./documentation.tex:70: Missing $ inserted.
-<inserted text> 
-                $
-l.70 
-     
-? 
-./documentation.tex:70: Missing } inserted.
-<inserted text> 
-                }
-l.70 
-     
-? 
-
-Overfull \hbox (247.12111pt too wide) in paragraph at lines 68--70
- []\OML/cmm/m/it/10 xitsonthecompletionofarecursivecalltodirTraversal:Inthepare
-ntprocesstheprocessCounterisincrementedandbreaksfromtheswitch:[]$ 
- []
-
-./documentation.tex:70: Extra }, or forgotten \endgroup.
-\par ...m \@noitemerr {\@@par }\fi \else {\@@par }
-                                                  \fi 
-l.70 
-     
-? 
-./documentation.tex:75: Missing $ inserted.
-<inserted text> 
-                $
-l.75 ...ual to the number in an appropriate movie_
-                                                  database.csv, the rest of ...
-
-? 
-./documentation.tex:76: Missing $ inserted.
-<inserted text> 
-                $
-l.76 
-     
-? 
-./documentation.tex:76: Missing } inserted.
-<inserted text> 
-                }
-l.76 
-     
-? 
-
-Overfull \hbox (310.69093pt too wide) in paragraph at lines 75--76
- \OT1/cmr/m/n/10 movie$[]\OML/cmm/m/it/10 atabase:csv; therestofthefileisreadin
-tonoderow:Thenoderowisthenpassedtothemergesortfunctionandafterasuccessfulrun; t
-henodehead\OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/it/10 > 
- []
-
-
-Overfull \hbox (183.59114pt too wide) in paragraph at lines 75--76
- \OML/cmm/m/it/10 nextissettorow:Thedataisthenwritentothefileinthechosendirecto
-ryandthenthenodesarefreedandtheprocessexitswith\OT1/cmr/m/n/10 1\OML/cmm/m/it/1
-0 :[]$ 
- []
-
-./documentation.tex:76: Extra }, or forgotten \endgroup.
-\par ...m \@noitemerr {\@@par }\fi \else {\@@par }
-                                                  \fi 
-l.76 
-     
-? 
-[2] (./documentation.aux) ) 
+ [1] [2]
+(./documentation.aux) ) 
 Here is how much of TeX's memory you used:
- 248 strings out of 494820
- 2819 string characters out of 3178049
+ 246 strings out of 494820
+ 2791 string characters out of 3178049
  51764 words of memory out of 3000000
- 3510 multiletter control sequences out of 15000+200000
+ 3508 multiletter control sequences out of 15000+200000
  7588 words of font info for 27 fonts, out of 3000000 for 9000
  198 hyphenation exceptions out of 8191
- 23i,6n,19p,423b,225s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
-mi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pf
-b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr
-/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on documentation.pdf (3 pages, 88994 bytes).
+ 23i,6n,19p,421b,225s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.
+pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+Output written on documentation.pdf (3 pages, 68606 bytes).
 PDF statistics:
- 46 PDF objects out of 1000 (max. 8388607)
- 32 compressed objects within 1 object stream
+ 38 PDF objects out of 1000 (max. 8388607)
+ 26 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
